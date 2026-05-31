@@ -417,7 +417,7 @@ async def main():
     app.add_handler(CallbackQueryHandler(settings, pattern='^settings$'))
     app.add_handler(CallbackQueryHandler(change_name, pattern='^change_name$'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-
+threading.Thread(target=run_health_server, daemon=True).start()
     print("🌿 Slow Glow Bot запущен...")
     await app.initialize()
     await app.start()
