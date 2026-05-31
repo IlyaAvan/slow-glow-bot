@@ -14,8 +14,6 @@ API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 log = logging.getLogger(__name__)
 
-# ── КОНТЕНТ ────────────────────────────────────────────────────────────────────
-
 MORNING_COMPASS = [
     {"title": "Сегодня не обязательно делать больше", "body": "Можно делать важнее.\n\nГде сегодня можно выбрать спокойствие вместо спешки?"},
     {"title": "Утро начинается с намерения", "body": "Не с телефона, не с новостей.\n\nС одного тихого вопроса: как я хочу себя чувствовать сегодня?"},
@@ -56,7 +54,7 @@ RECIPES = [
         "steps": "1. Сварите яйцо всмятку (6 минут)\n2. Нарежьте авокадо\n3. Выложите шпинат, авокадо, яйцо\n4. Сбрызните лимоном, посыпьте кунжутом",
         "benefit": "Омега-3, железо, витамин D",
         "time": "15 мин",
-        "difficulty": "Лёгко"
+        "difficulty": "Легко"
     },
     {
         "name": "Golden Oat Bowl",
@@ -65,9 +63,78 @@ RECIPES = [
         "steps": "1. Сварите овсянку на молоке\n2. Добавьте куркуму и мёд\n3. Нарежьте банан, добавьте орехи",
         "benefit": "Клетчатка, антиоксиданты, энергия",
         "time": "10 мин",
-        "difficulty": "Лёгко"
+        "difficulty": "Легко"
+    },
+    {
+        "name": "Berry Chia Pudding",
+        "desc": "Нежный пудинг с ягодами — готовится с вечера",
+        "ingredients": "• Семена чиа — 3 ст.л.\n• Кокосовое молоко — 200мл\n• Мёд — 1 ч.л.\n• Ягоды — горсть",
+        "steps": "1. Смешайте чиа с молоком и мёдом\n2. Уберите в холодильник на ночь\n3. Утром добавьте ягоды",
+        "benefit": "Омега-3, антиоксиданты, клетчатка",
+        "time": "5 мин + ночь",
+        "difficulty": "Легко"
     },
 ]
+
+CITY_GUIDES = {
+    "париж": {
+        "name": "Париж",
+        "emoji": "🗼",
+        "desc": "Эстетичный, спокойный, вдохновляющий",
+        "days": [
+            "День 1: Монмартр — маленькие кафе, художники, вид на город",
+            "День 2: Музей Орсе — импрессионисты, потом набережные Сены",
+            "День 3: Район Маре — галереи, винтаж, лучший фалафель",
+            "День 4: Версаль или Фонтенбло — парки, дворцы, тишина",
+        ],
+        "tips": "Лучшее время: апрель–май, сентябрь–октябрь\nБюджет: от €80/день\nЖить лучше: 11-й или 3-й округ"
+    },
+    "копенгаген": {
+        "name": "Копенгаген",
+        "emoji": "🇩🇰",
+        "desc": "Дизайн, hygge и открытые пространства",
+        "days": [
+            "День 1: Норребро — кофейни, стрит-арт, рынки",
+            "День 2: Музей Louisiana — современное искусство у моря",
+            "День 3: Фредериксберг — парки, дворец, тихие улочки",
+        ],
+        "tips": "Лучшее время: июнь–август\nОбязательно: велосипед\nTry: смёрребрёд и новая нордическая кухня"
+    },
+    "милан": {
+        "name": "Милан",
+        "emoji": "🇮🇹",
+        "desc": "Архитектура, мода и aperitivo",
+        "days": [
+            "День 1: Дуомо и галерея Виктора Эммануила II",
+            "День 2: Брера — галерея, рынок, лучшие рестораны",
+            "День 3: Навильи — каналы, aperitivo, атмосфера",
+        ],
+        "tips": "Лучшее время: март–май, сентябрь–октябрь\nАperitivo: с 18:00 — напиток + еда\nОбязательно: Тайная вечеря Да Винчи (бронировать заранее)"
+    },
+    "токио": {
+        "name": "Токио",
+        "emoji": "🇯🇵",
+        "desc": "Культура, детали и удивительный контраст",
+        "days": [
+            "День 1: Асакуса — храм Сенсодзи, традиционный рынок",
+            "День 2: Сибуя и Харадзюку — современный Токио",
+            "День 3: Янака — старый Токио, кошачьи кафе, тофу",
+            "День 4: Никко или Камакура — природа и храмы",
+        ],
+        "tips": "Лучшее время: март–апрель (сакура), октябрь–ноябрь\nJR Pass экономит на транспорте\nПопробовать: омакасе, рамен, моти"
+    },
+    "лиссабон": {
+        "name": "Лиссабон",
+        "emoji": "🇵🇹",
+        "desc": "Свет, трамваи и меланхоличная красота",
+        "days": [
+            "День 1: Алфама — фаду, азулежу, закат с мирадору",
+            "День 2: Белен — монастырь Жеронимуш, пастель де ната",
+            "День 3: LX Factory — маркет, рестораны, атмосфера",
+        ],
+        "tips": "Лучшее время: май–июнь, сентябрь\nОбязательно: трамвай 28\nПопробовать: пастель де ната в Pastéis de Belém"
+    },
+}
 
 EVENING_QUESTIONS = [
     "Что сегодня получилось хорошо?",
@@ -76,19 +143,36 @@ EVENING_QUESTIONS = [
     "За что я благодарна сегодня?",
 ]
 
-# ── ХРАНИЛИЩЕ ────────────────────────────────────────────────────────────────
+# Unsplash фото по темам
+PHOTOS = {
+    "morning": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+    "intelligence": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800",
+    "culture": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+    "recipe": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800",
+    "soft": "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800",
+    "reflect": "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800",
+    "guides": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800",
+    "paris": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800",
+    "copenhagen": "https://images.unsplash.com/photo-1513622470522-26c3c8a854bc?w=800",
+    "milan": "https://images.unsplash.com/photo-1513581166391-887a96ddeafd?w=800",
+    "tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800",
+    "lisbon": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800",
+    "default": "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?w=800",
+}
+
 user_data = {}
 
 def get_user(uid):
-    if str(uid) not in user_data:
-        user_data[str(uid)] = {
+    uid = str(uid)
+    if uid not in user_data:
+        user_data[uid] = {
             "state": None,
-            "name": None,
+            "name": "",
             "onboarding": {},
             "ob_step": 0,
-            "mi": 0, "di": 0, "ci": 0, "si": 0, "ri": 0,
+            "di": 0, "ci": 0, "si": 0,
         }
-    return user_data[str(uid)]
+    return user_data[uid]
 
 def get_daily(items, offset=0):
     return items[(datetime.now().timetuple().tm_yday + offset) % len(items)]
@@ -100,7 +184,6 @@ def greeting():
     elif 17 <= h < 22: return "Добрый вечер"
     return "Доброй ночи"
 
-# ── API ───────────────────────────────────────────────────────────────────────
 def api(method, data):
     try:
         req = Request(f"{API}/{method}", data=json.dumps(data).encode(),
@@ -116,6 +199,14 @@ def send(chat_id, text, kb=None):
     if kb: d["reply_markup"] = {"inline_keyboard": kb}
     return api("sendMessage", d)
 
+def send_photo(chat_id, photo_url, caption, kb=None):
+    d = {"chat_id": chat_id, "photo": photo_url, "caption": caption, "parse_mode": "HTML"}
+    if kb: d["reply_markup"] = {"inline_keyboard": kb}
+    result = api("sendPhoto", d)
+    if not result or not result.get("ok"):
+        return send(chat_id, caption, kb)
+    return result
+
 def edit(chat_id, msg_id, text, kb=None):
     d = {"chat_id": chat_id, "message_id": msg_id, "text": text, "parse_mode": "HTML"}
     if kb: d["reply_markup"] = {"inline_keyboard": kb}
@@ -124,7 +215,6 @@ def edit(chat_id, msg_id, text, kb=None):
 def answer(cb_id, text=""):
     api("answerCallbackQuery", {"callback_query_id": cb_id, "text": text})
 
-# ── КЛАВИАТУРЫ ────────────────────────────────────────────────────────────────
 def main_menu_kb():
     return [
         [{"text": "☀️  Daily", "callback_data": "daily_menu"}],
@@ -139,15 +229,14 @@ def back_kb():
 
 def daily_kb():
     return [
-        [{"text": "🌅 Morning Compass", "callback_data": "morning"}],
-        [{"text": "✦ Daily Intelligence", "callback_data": "intelligence"}],
-        [{"text": "🎨 Culture Note", "callback_data": "culture"}],
-        [{"text": "🥗 Recipe of the Day", "callback_data": "recipe"}],
-        [{"text": "🌸 Soft Action", "callback_data": "soft"}],
+        [{"text": "Morning Compass", "callback_data": "morning"}],
+        [{"text": "Daily Intelligence", "callback_data": "intelligence"}],
+        [{"text": "Culture Note", "callback_data": "culture"}],
+        [{"text": "Recipe of the Day", "callback_data": "recipe"}],
+        [{"text": "Soft Action", "callback_data": "soft"}],
         [{"text": "↩ В меню", "callback_data": "menu"}],
     ]
 
-# ── ОНБОРДИНГ ─────────────────────────────────────────────────────────────────
 OB_STEPS = [
     {
         "key": "goal",
@@ -166,20 +255,20 @@ OB_STEPS = [
         "q": "Каким человеком вы хотите становиться?\n\n<i>Выберите до 5 качеств</i>",
         "multi": True,
         "options": [
-            ("спокойный", "q_calm"), ("уверенный", "q_confident"),
-            ("любознательный", "q_curious"), ("заботящийся о себе", "q_selfcare"),
-            ("творческий", "q_creative"), ("эстетичный", "q_aesthetic"),
-            ("дисциплинированный", "q_disciplined"), ("свободный", "q_free"),
+            ("спокойная", "q_calm"), ("уверенная", "q_confident"),
+            ("любознательная", "q_curious"), ("заботящаяся о себе", "q_selfcare"),
+            ("творческая", "q_creative"), ("эстетичная", "q_aesthetic"),
+            ("дисциплинированная", "q_disciplined"), ("свободная", "q_free"),
         ]
     },
     {
         "key": "inspiration",
-        "q": "Что вас вдохновляет? ✦",
+        "q": "Что вас вдохновляет?",
         "multi": True,
         "options": [
-            ("📚 Книги", "i_books"), ("🎨 Искусство", "i_art"),
-            ("🏛 Архитектура", "i_arch"), ("✈️ Путешествия", "i_travel"),
-            ("🌿 Wellness", "i_wellness"), ("💄 Красота", "i_beauty"),
+            ("Книги", "i_books"), ("Искусство", "i_art"),
+            ("Архитектура", "i_arch"), ("Путешествия", "i_travel"),
+            ("Wellness", "i_wellness"), ("Красота", "i_beauty"),
         ]
     },
     {
@@ -187,9 +276,9 @@ OB_STEPS = [
         "q": "Какие темы вам интересны?",
         "multi": True,
         "options": [
-            ("🧠 Психология", "t_psych"), ("💄 Beauty", "t_beauty"),
-            ("🥗 Рецепты", "t_recipes"), ("✈️ Travel", "t_travel"),
-            ("🎭 Культура", "t_culture"), ("📖 Книги", "t_books"),
+            ("Психология", "t_psych"), ("Beauty", "t_beauty"),
+            ("Рецепты", "t_recipes"), ("Travel", "t_travel"),
+            ("Культура", "t_culture"), ("Книги", "t_books"),
         ]
     },
     {
@@ -197,9 +286,9 @@ OB_STEPS = [
         "q": "Какой ритм жизни вам ближе?",
         "multi": False,
         "options": [
-            ("🌿 Медленный", "r_slow"),
-            ("⚖️ Баланс", "r_balance"),
-            ("⚡️ Активный", "r_active"),
+            ("Медленный", "r_slow"),
+            ("Баланс", "r_balance"),
+            ("Активный", "r_active"),
         ]
     },
 ]
@@ -209,10 +298,8 @@ def send_ob_step(chat_id, u):
     if step >= len(OB_STEPS):
         finish_onboarding(chat_id, u)
         return
-
     s = OB_STEPS[step]
     selected = u["onboarding"].get(s["key"] + "_selected", [])
-
     if s["multi"]:
         kb = []
         for label, cb in s["options"]:
@@ -221,13 +308,11 @@ def send_ob_step(chat_id, u):
         kb.append([{"text": "Продолжить →", "callback_data": "ob_next"}])
     else:
         kb = [[{"text": label, "callback_data": f"ob_{cb}"}] for label, cb in s["options"]]
-
     send(chat_id, s["q"], kb)
 
 def finish_onboarding(chat_id, u):
-    name = u.get("name", "")
+    name = u["name"]
     u["state"] = None
-    u["ob_step"] = 0
     qualities = u["onboarding"].get("qualities_selected", [])
     q_labels = {
         "q_calm": "спокойная", "q_confident": "уверенная",
@@ -236,15 +321,14 @@ def finish_onboarding(chat_id, u):
         "q_disciplined": "дисциплинированная", "q_free": "свободная",
     }
     q_text = ", ".join([q_labels.get(q, q) for q in qualities]) if qualities else "прекрасной"
-    send(chat_id,
-        f"Всё готово, {name} ✦\n\n"
+    send_photo(chat_id, PHOTOS["default"],
+        f"Всё готово, <b>{name}</b> ✦\n\n"
         f"Я запомнила, что вы хотите становиться: <b>{q_text}</b>.\n\n"
         f"Каждый день буду присылать вам то, что поможет жить ближе к этому образу.\n\n"
         f"<i>take it slow. let it glow. ✦</i>",
         main_menu_kb()
     )
 
-# ── ОБРАБОТЧИКИ ───────────────────────────────────────────────────────────────
 def handle_message(msg):
     chat_id = msg["chat"]["id"]
     text = msg.get("text", "")
@@ -254,63 +338,108 @@ def handle_message(msg):
         u["state"] = "waiting_name"
         u["ob_step"] = 0
         u["onboarding"] = {}
+        u["name"] = ""
         send(chat_id,
             "Привет ✦\n\n"
             "Я — <b>Slow Glow</b>, ваш персональный lifestyle companion.\n\n"
             "Помогу вам жить ближе к тому, кем вы хотите быть — без спешки, с вдохновением и заботой о себе.\n\n"
-            "Как вас зовут? 🌿"
+            "Как вас зовут?"
         )
         return
 
     if text == "/menu":
-        name = u.get("name", "")
-        send(chat_id, f"{greeting()}, {name} ✦\n\nВыберите раздел:", main_menu_kb())
+        name = u["name"] or "друг"
+        send(chat_id, f"{greeting()}, <b>{name}</b> ✦\n\nВыберите раздел:", main_menu_kb())
         return
 
     if u["state"] == "waiting_name":
-        u["name"] = text.strip()
+        name = text.strip()
+        u["name"] = name
         u["state"] = "onboarding"
         send(chat_id,
-            f"Рада знакомству, {u['name']} ✦\n\n"
+            f"Рада знакомству, <b>{name}</b> ✦\n\n"
             f"Прежде чем начать, задам несколько вопросов — чтобы Slow Glow был по-настоящему вашим.\n\n"
-            f"Это займёт меньше минуты 🌿"
+            f"Это займёт меньше минуты"
         )
-        time.sleep(1)
+        time.sleep(0.5)
         send_ob_step(chat_id, u)
         return
 
     if u["state"] == "reflect_mode":
-        name = u.get("name", "")
-        responses = [
-            f"Спасибо, что поделились, {name} 🌿\n\nЭто важно — замечать и называть то, что внутри.",
-            f"Слышу вас, {name} ✦\n\nИногда просто высказать мысль вслух уже помогает.",
-            f"Это звучит честно, {name} 🌿\n\nВы уже делаете кое-что важное — обращаете на себя внимание.",
-        ]
+        name = u["name"] or "друг"
         import random
-        r = random.choice(responses)
-        send(chat_id, r, [
+        responses = [
+            f"Спасибо, что поделились, <b>{name}</b> ✦\n\nЭто важно — замечать и называть то, что внутри.",
+            f"Слышу вас ✦\n\nИногда просто высказать мысль вслух уже помогает.",
+            f"Это звучит честно ✦\n\nВы уже делаете кое-что важное — обращаете на себя внимание.",
+        ]
+        send_photo(chat_id, PHOTOS["reflect"], random.choice(responses), [
             [{"text": "Написать ещё", "callback_data": "reflect_more"}],
             [{"text": "↩ В меню", "callback_data": "menu"}],
         ])
         return
 
     if u["state"] == "explore_mode":
-        query = text.strip()
-        send(chat_id,
-            f"✨ <b>Explore</b>\n\nВы написали: «{query}»\n\n"
-            f"Уточните, пожалуйста:",
-            [
-                [{"text": "Подробнее", "callback_data": "explore_detail"}],
-                [{"text": "Другой запрос", "callback_data": "explore_new"}],
-                [{"text": "↩ В меню", "callback_data": "menu"}],
-            ]
-        )
-        u["explore_query"] = query
+        query = text.strip().lower()
+        # Поиск города
+        city_key = None
+        for key in CITY_GUIDES:
+            if key in query or CITY_GUIDES[key]["name"].lower() in query:
+                city_key = key
+                break
+        if city_key:
+            u["state"] = None
+            show_city_guide(chat_id, city_key)
+        else:
+            u["explore_query"] = text.strip()
+            u["state"] = None
+            send(chat_id,
+                f"✨ Вы написали: «{text.strip()}» ✦\n\n"
+                f"Уточните запрос:",
+                [
+                    [{"text": "Подробнее", "callback_data": "explore_detail"}],
+                    [{"text": "Другой запрос", "callback_data": "explore_new"}],
+                    [{"text": "↩ В меню", "callback_data": "menu"}],
+                ]
+            )
         return
 
-    name = u.get("name", "")
-    send(chat_id, f"{greeting()}, {name} ✦\n\nВыберите раздел:", main_menu_kb())
+    if u["state"] == "city_search":
+        query = text.strip().lower()
+        u["state"] = None
+        city_key = None
+        for key in CITY_GUIDES:
+            if key in query or CITY_GUIDES[key]["name"].lower() in query:
+                city_key = key
+                break
+        if city_key:
+            show_city_guide(chat_id, city_key)
+        else:
+            send(chat_id,
+                f"Пока у меня нет гайда по этому городу.\n\n"
+                f"Есть гайды по: Париж, Копенгаген, Милан, Токио, Лиссабон\n\n"
+                f"Или напишите другой город:",
+                [[{"text": "↩ Guides", "callback_data": "guides"}]]
+            )
+        return
 
+    name = u["name"] or "друг"
+    send(chat_id, f"{greeting()}, <b>{name}</b> ✦\n\nВыберите раздел:", main_menu_kb())
+
+def show_city_guide(chat_id, city_key):
+    g = CITY_GUIDES[city_key]
+    days_text = "\n".join([f"• {d}" for d in g["days"]])
+    photo_key = city_key if city_key in PHOTOS else "guides"
+    send_photo(chat_id, PHOTOS[photo_key],
+        f"{g['emoji']} <b>{g['name']}</b>\n<i>{g['desc']}</i>\n\n"
+        f"<b>Маршрут:</b>\n{days_text}\n\n"
+        f"<b>Советы:</b>\n{g['tips']}",
+        [
+            [{"text": "Сохранить гайд", "callback_data": "save"}],
+            [{"text": "Другой город", "callback_data": "city_search"}],
+            [{"text": "↩ Guides", "callback_data": "guides"}],
+        ]
+    )
 
 def handle_callback(cb):
     chat_id = cb["message"]["chat"]["id"]
@@ -319,30 +448,25 @@ def handle_callback(cb):
     cb_id = cb["id"]
     u = get_user(chat_id)
     answer(cb_id)
+    name = u["name"] or "друг"
 
-    # ── ОНБОРДИНГ ──
     if data.startswith("ob_"):
         step = u["ob_step"]
         if step >= len(OB_STEPS): return
         s = OB_STEPS[step]
-        cb_val = data[3:]  # убираем "ob_"
-
+        cb_val = data[3:]
         if cb_val == "next":
             u["ob_step"] += 1
             send_ob_step(chat_id, u)
             return
-
-        # Найдём key шага
         key = s["key"]
         if s["multi"]:
             selected = u["onboarding"].get(key + "_selected", [])
             if cb_val in selected:
                 selected.remove(cb_val)
-            else:
-                if len(selected) < 5:
-                    selected.append(cb_val)
+            elif len(selected) < 5:
+                selected.append(cb_val)
             u["onboarding"][key + "_selected"] = selected
-            # Обновим кнопки
             kb = []
             for label, opt in s["options"]:
                 check = "✓ " if opt in selected else ""
@@ -355,43 +479,36 @@ def handle_callback(cb):
             send_ob_step(chat_id, u)
         return
 
-    # ── МЕНЮ ──
     if data == "menu":
-        name = u.get("name", "")
-        edit(chat_id, msg_id, f"{greeting()}, {name} ✦\n\nВыберите раздел:", main_menu_kb())
+        edit(chat_id, msg_id, f"{greeting()}, <b>{name}</b> ✦\n\nВыберите раздел:", main_menu_kb())
 
-    # ── DAILY ──
     elif data == "daily_menu":
-        name = u.get("name", "")
-        edit(chat_id, msg_id,
-            f"☀️ <b>Daily</b>\n\n{greeting()}, {name} ✦\n\nЕжедневный поток вдохновения и пользы для вас:",
-            daily_kb()
-        )
+        edit(chat_id, msg_id, f"☀️ <b>Daily</b>\n\n{greeting()}, <b>{name}</b> ✦\n\nВаш ежедневный поток вдохновения:", daily_kb())
 
     elif data == "morning":
         item = get_daily(MORNING_COMPASS)
-        edit(chat_id, msg_id,
-            f"🌅 <b>Morning Compass</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
+        send_photo(chat_id, PHOTOS["morning"],
+            f"<b>Morning Compass</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
             [
-                [{"text": "Моя фокус-точка дня →", "callback_data": "morning_focus"}],
+                [{"text": "Моя фокус-точка дня", "callback_data": "morning_focus"}],
                 [{"text": "Другое действие", "callback_data": "soft"}, {"text": "Мысль дня", "callback_data": "intelligence"}],
                 [{"text": "↩ Daily", "callback_data": "daily_menu"}],
             ]
         )
 
     elif data == "morning_focus":
-        item = get_daily(SOFT_ACTIONS)
-        edit(chat_id, msg_id,
-            f"🎯 <b>Ваша фокус-точка сегодня</b>\n\n{item}\n\n<i>Маленькое действие меняет день ✦</i>",
+        action = get_daily(SOFT_ACTIONS)
+        send_photo(chat_id, PHOTOS["soft"],
+            f"<b>Ваша фокус-точка сегодня</b>\n\n{action}\n\n<i>Маленькое действие меняет день ✦</i>",
             [[{"text": "↩ Morning Compass", "callback_data": "morning"}]]
         )
 
     elif data == "intelligence":
         item = get_daily(DAILY_INTELLIGENCE)
-        edit(chat_id, msg_id,
-            f"✦ <b>Daily Intelligence</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
+        send_photo(chat_id, PHOTOS["intelligence"],
+            f"<b>Daily Intelligence</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
             [
-                [{"text": "💾 Сохранить", "callback_data": "save"}, {"text": "→ Следующее", "callback_data": "intel_next"}],
+                [{"text": "Сохранить", "callback_data": "save"}, {"text": "Следующее", "callback_data": "intel_next"}],
                 [{"text": "↩ Daily", "callback_data": "daily_menu"}],
             ]
         )
@@ -399,20 +516,20 @@ def handle_callback(cb):
     elif data == "intel_next":
         u["di"] = u.get("di", 0) + 1
         item = DAILY_INTELLIGENCE[u["di"] % len(DAILY_INTELLIGENCE)]
-        edit(chat_id, msg_id,
-            f"✦ <b>Daily Intelligence</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
+        send_photo(chat_id, PHOTOS["intelligence"],
+            f"<b>Daily Intelligence</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
             [
-                [{"text": "💾 Сохранить", "callback_data": "save"}, {"text": "→ Следующее", "callback_data": "intel_next"}],
+                [{"text": "Сохранить", "callback_data": "save"}, {"text": "Следующее", "callback_data": "intel_next"}],
                 [{"text": "↩ Daily", "callback_data": "daily_menu"}],
             ]
         )
 
     elif data == "culture":
         item = get_daily(CULTURE_NOTES)
-        edit(chat_id, msg_id,
-            f"🎨 <b>Culture Note</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
+        send_photo(chat_id, PHOTOS["culture"],
+            f"<b>Culture Note</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
             [
-                [{"text": "💾 Сохранить", "callback_data": "save"}, {"text": "→ Следующее", "callback_data": "culture_next"}],
+                [{"text": "Сохранить", "callback_data": "save"}, {"text": "Следующее", "callback_data": "culture_next"}],
                 [{"text": "↩ Daily", "callback_data": "daily_menu"}],
             ]
         )
@@ -420,56 +537,52 @@ def handle_callback(cb):
     elif data == "culture_next":
         u["ci"] = u.get("ci", 0) + 1
         item = CULTURE_NOTES[u["ci"] % len(CULTURE_NOTES)]
-        edit(chat_id, msg_id,
-            f"🎨 <b>Culture Note</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
+        send_photo(chat_id, PHOTOS["culture"],
+            f"<b>Culture Note</b>\n\n<b>{item['title']}</b>\n\n{item['body']}",
             [
-                [{"text": "💾 Сохранить", "callback_data": "save"}, {"text": "→ Следующее", "callback_data": "culture_next"}],
+                [{"text": "Сохранить", "callback_data": "save"}, {"text": "Следующее", "callback_data": "culture_next"}],
                 [{"text": "↩ Daily", "callback_data": "daily_menu"}],
             ]
         )
 
     elif data == "recipe":
         r = get_daily(RECIPES)
-        edit(chat_id, msg_id,
-            f"🥗 <b>Recipe of the Day</b>\n\n<b>{r['name']}</b>\n<i>{r['desc']}</i>\n\n"
+        send_photo(chat_id, PHOTOS["recipe"],
+            f"<b>Recipe of the Day</b>\n\n<b>{r['name']}</b>\n<i>{r['desc']}</i>\n\n"
             f"<b>Ингредиенты:</b>\n{r['ingredients']}\n\n"
             f"<b>Приготовление:</b>\n{r['steps']}\n\n"
-            f"✦ <i>{r['benefit']}</i>\n"
-            f"⏱ {r['time']}  •  {r['difficulty']}",
+            f"✦ {r['benefit']}  •  {r['time']}  •  {r['difficulty']}",
             [
-                [{"text": "💾 Сохранить рецепт", "callback_data": "save"}],
+                [{"text": "Сохранить рецепт", "callback_data": "save"}],
                 [{"text": "↩ Daily", "callback_data": "daily_menu"}],
             ]
         )
 
     elif data == "soft":
         action = get_daily(SOFT_ACTIONS)
-        edit(chat_id, msg_id,
-            f"🌸 <b>Soft Action</b>\n\n{action}\n\n<i>Маленькое действие — это уже забота о себе ✦</i>",
+        send_photo(chat_id, PHOTOS["soft"],
+            f"<b>Soft Action</b>\n\n{action}\n\n<i>Маленькое действие — это уже забота о себе ✦</i>",
             [
-                [{"text": "✓ Сделаю", "callback_data": "soft_done"}, {"text": "↻ Другое", "callback_data": "soft_next"}],
+                [{"text": "Сделаю", "callback_data": "soft_done"}, {"text": "Другое", "callback_data": "soft_next"}],
                 [{"text": "↩ Daily", "callback_data": "daily_menu"}],
             ]
         )
 
     elif data == "soft_done":
-        name = u.get("name", "")
-        edit(chat_id, msg_id, f"Замечательно, {name} 🌿\n\n<i>take it slow. let it glow. ✦</i>", back_kb())
+        send(chat_id, f"Замечательно, <b>{name}</b> ✦\n\n<i>take it slow. let it glow.</i>", back_kb())
 
     elif data == "soft_next":
         u["si"] = u.get("si", 0) + 1
         action = SOFT_ACTIONS[u["si"] % len(SOFT_ACTIONS)]
-        edit(chat_id, msg_id,
-            f"🌸 <b>Soft Action</b>\n\n{action}",
+        send_photo(chat_id, PHOTOS["soft"],
+            f"<b>Soft Action</b>\n\n{action}",
             [
-                [{"text": "✓ Сделаю", "callback_data": "soft_done"}, {"text": "↻ Другое", "callback_data": "soft_next"}],
+                [{"text": "Сделаю", "callback_data": "soft_done"}, {"text": "Другое", "callback_data": "soft_next"}],
                 [{"text": "↩ Daily", "callback_data": "daily_menu"}],
             ]
         )
 
-    # ── MY COMPASS ──
     elif data == "compass":
-        name = u.get("name", "")
         ob = u.get("onboarding", {})
         qualities = ob.get("qualities_selected", [])
         inspiration = ob.get("inspiration_selected", [])
@@ -480,13 +593,12 @@ def handle_callback(cb):
             "q_disciplined": "дисциплинированная", "q_free": "свободная",
         }
         i_labels = {
-            "i_books": "📚 Книги", "i_art": "🎨 Искусство",
-            "i_arch": "🏛 Архитектура", "i_travel": "✈️ Путешествия",
-            "i_wellness": "🌿 Wellness", "i_beauty": "💄 Красота",
+            "i_books": "Книги", "i_art": "Искусство",
+            "i_arch": "Архитектура", "i_travel": "Путешествия",
+            "i_wellness": "Wellness", "i_beauty": "Красота",
         }
-        q_text = "  ".join([q_labels.get(q, q) for q in qualities]) if qualities else "ещё не выбраны"
-        i_text = "  ".join([i_labels.get(i, i) for i in inspiration]) if inspiration else "ещё не выбраны"
-
+        q_text = " · ".join([q_labels.get(q, q) for q in qualities]) if qualities else "ещё не выбраны"
+        i_text = " · ".join([i_labels.get(i, i) for i in inspiration]) if inspiration else "ещё не выбраны"
         edit(chat_id, msg_id,
             f"🧭 <b>My Compass</b>\n\n"
             f"<b>Я становлюсь человеком, который:</b>\n{q_text}\n\n"
@@ -495,157 +607,127 @@ def handle_callback(cb):
             [[{"text": "↩ В меню", "callback_data": "menu"}]]
         )
 
-    # ── EXPLORE ──
     elif data == "explore":
         u["state"] = "explore_mode"
         edit(chat_id, msg_id,
             "✨ <b>Explore</b>\n\n<b>Чем я могу помочь?</b>\n\n"
             "Напишите мне что угодно:\n\n"
             "<i>«Париж на 4 дня»\n«Что почитать если устала»\n«Подбери красивый завтрак»\n«Идеи для воскресенья»\n«Уход за кожей зимой»</i>\n\n"
-            "Напишите ваш запрос ↓",
+            "Напишите ваш запрос:",
             [[{"text": "↩ В меню", "callback_data": "menu"}]]
         )
 
-    elif data in ["explore_detail", "explore_new"]:
+    elif data == "explore_detail":
         query = u.get("explore_query", "")
-        if data == "explore_detail":
-            edit(chat_id, msg_id,
-                f"✨ <b>Explore</b>\n\nОтличный запрос — «{query}» ✦\n\n"
-                f"Эта функция скоро будет доступна с персонализированными рекомендациями специально для вас.\n\n"
-                f"А пока загляните в <b>Guides</b> — там уже есть кое-что интересное 🌿",
-                [
-                    [{"text": "📚 Открыть Guides", "callback_data": "guides"}],
-                    [{"text": "↩ В меню", "callback_data": "menu"}],
-                ]
-            )
-        else:
-            u["state"] = "explore_mode"
-            edit(chat_id, msg_id,
-                "✨ <b>Explore</b>\n\nНапишите новый запрос ↓",
-                [[{"text": "↩ В меню", "callback_data": "menu"}]]
-            )
-
-    # ── GUIDES ──
-    elif data == "guides":
-        edit(chat_id, msg_id,
-            "📚 <b>Guides</b>\n\nГотовые мини-гайды для вашей красивой жизни:",
+        send(chat_id,
+            f"✨ Отличный запрос — «{query}» ✦\n\n"
+            f"Персонализированные рекомендации появятся в следующем обновлении.\n\n"
+            f"А пока загляните в <b>Guides</b> — там уже есть кое-что интересное",
             [
-                [{"text": "✈️ Travel", "callback_data": "guide_travel"}],
-                [{"text": "💄 Beauty", "callback_data": "guide_beauty"}],
-                [{"text": "🌿 Wellness", "callback_data": "guide_wellness"}],
-                [{"text": "📖 Books", "callback_data": "guide_books"}],
-                [{"text": "🌸 Lifestyle", "callback_data": "guide_lifestyle"}],
+                [{"text": "Открыть Guides", "callback_data": "guides"}],
                 [{"text": "↩ В меню", "callback_data": "menu"}],
             ]
         )
 
-    elif data == "guide_travel":
-        edit(chat_id, msg_id,
-            "✈️ <b>Travel Guide</b>\n\n"
-            "<b>Париж на 4 дня</b>\nЭстетичный, спокойный, вдохновляющий.\n\n"
-            "День 1: Монмартр и маленькие кафе\nДень 2: Музей Орсе и набережные\nДень 3: Маре и галереи\nДень 4: Версаль или Фонтенбло\n\n"
-            "<b>Копенгаген: свет и воздух</b>\nДизайн, hygge и открытые пространства.\n\n"
-            "<b>Милан: искусство и стиль</b>\nАрхитектура, апартаменты и aperitivo.",
+    elif data == "explore_new":
+        u["state"] = "explore_mode"
+        send(chat_id, "✨ Напишите новый запрос:", [[{"text": "↩ В меню", "callback_data": "menu"}]])
+
+    elif data == "guides":
+        send_photo(chat_id, PHOTOS["guides"],
+            "📚 <b>Guides</b>\n\nГотовые мини-гайды для вашей красивой жизни:",
             [
-                [{"text": "💾 Сохранить гайд", "callback_data": "save"}],
-                [{"text": "↩ Guides", "callback_data": "guides"}],
+                [{"text": "Найти город", "callback_data": "city_search"}],
+                [{"text": "Beauty", "callback_data": "guide_beauty"}, {"text": "Wellness", "callback_data": "guide_wellness"}],
+                [{"text": "Books", "callback_data": "guide_books"}, {"text": "Lifestyle", "callback_data": "guide_lifestyle"}],
+                [{"text": "↩ В меню", "callback_data": "menu"}],
             ]
         )
 
+    elif data == "city_search":
+        u["state"] = "city_search"
+        send(chat_id,
+            "Напишите название города — я найду гайд:\n\n"
+            "<i>Например: Париж, Токио, Лиссабон, Копенгаген, Милан</i>",
+            [[{"text": "↩ Guides", "callback_data": "guides"}]]
+        )
+
     elif data == "guide_beauty":
-        edit(chat_id, msg_id,
-            "💄 <b>Beauty Guide</b>\n\n"
+        send_photo(chat_id, PHOTOS["soft"],
+            "<b>Beauty Guide</b>\n\n"
             "<b>Уход за кожей зимой</b>\n\n"
-            "1. Очищение мягкой пенкой — дважды в день\n"
+            "1. Мягкое очищение — дважды в день\n"
             "2. Тоник с гиалуроновой кислотой\n"
             "3. Сыворотка с витамином С утром\n"
             "4. Насыщенный крем вечером\n"
             "5. Масло для губ — обязательно\n\n"
-            "<i>Главное правило: меньше агрессивных ингредиентов, больше питания ✦</i>",
-            [
-                [{"text": "💾 Сохранить", "callback_data": "save"}],
-                [{"text": "↩ Guides", "callback_data": "guides"}],
-            ]
+            "<i>Меньше агрессивных ингредиентов, больше питания ✦</i>",
+            [[{"text": "Сохранить", "callback_data": "save"}], [{"text": "↩ Guides", "callback_data": "guides"}]]
         )
 
     elif data == "guide_wellness":
-        edit(chat_id, msg_id,
-            "🌿 <b>Wellness Guide</b>\n\n"
+        send_photo(chat_id, PHOTOS["morning"],
+            "<b>Wellness Guide</b>\n\n"
             "<b>Утренний ритуал за 10 минут</b>\n\n"
             "1. Стакан воды с лимоном\n"
             "2. 3 минуты дыхания (4-4-6)\n"
-            "3. Записать одно намерение дня\n"
+            "3. Одно намерение дня\n"
             "4. 2 минуты смотреть в окно\n\n"
             "<b>Вечерний ритуал</b>\n\n"
-            "1. Отложить телефон за час до сна\n"
-            "2. Записать три благодарности\n"
+            "1. Телефон за час до сна\n"
+            "2. Три благодарности\n"
             "3. Любимый чай и тишина\n\n"
             "<i>Маленькие ритуалы создают большие перемены ✦</i>",
-            [
-                [{"text": "💾 Сохранить", "callback_data": "save"}],
-                [{"text": "↩ Guides", "callback_data": "guides"}],
-            ]
+            [[{"text": "Сохранить", "callback_data": "save"}], [{"text": "↩ Guides", "callback_data": "guides"}]]
         )
 
     elif data == "guide_books":
-        edit(chat_id, msg_id,
-            "📖 <b>Books Guide</b>\n\n"
-            "<b>Книги для slow living</b>\n\n"
-            "• <b>«В защиту праздности»</b> — Том Ходжкинсон\n"
-            "• <b>«Искусство медленного чтения»</b> — Михаил Эпштейн\n"
-            "• <b>«Радикальное принятие»</b> — Тара Брах\n"
-            "• <b>«Дао Пуха»</b> — Бенджамин Хофф\n\n"
-            "<b>Книги для вдохновения</b>\n\n"
-            "• <b>«Год волшебного мышления»</b> — Джоан Дидион\n"
-            "• <b>«Essentialism»</b> — Грег МакКеон",
-            [
-                [{"text": "💾 Сохранить", "callback_data": "save"}],
-                [{"text": "↩ Guides", "callback_data": "guides"}],
-            ]
+        send_photo(chat_id, PHOTOS["intelligence"],
+            "<b>Books Guide</b>\n\n"
+            "<b>Для slow living:</b>\n"
+            "• «В защиту праздности» — Том Ходжкинсон\n"
+            "• «Радикальное принятие» — Тара Брах\n"
+            "• «Дао Пуха» — Бенджамин Хофф\n\n"
+            "<b>Для вдохновения:</b>\n"
+            "• «Год волшебного мышления» — Джоан Дидион\n"
+            "• «Essentialism» — Грег МакКеон\n"
+            "• «Украдите как художник» — Остин Клеон",
+            [[{"text": "Сохранить", "callback_data": "save"}], [{"text": "↩ Guides", "callback_data": "guides"}]]
         )
 
     elif data == "guide_lifestyle":
-        edit(chat_id, msg_id,
-            "🌸 <b>Lifestyle Guide</b>\n\n"
-            "<b>Идеи для воскресенья</b>\n\n"
+        send_photo(chat_id, PHOTOS["reflect"],
+            "<b>Lifestyle Guide</b>\n\n"
+            "<b>Идеи для воскресенья:</b>\n"
             "• Медленный завтрак без телефона\n"
             "• Прогулка в новом месте города\n"
             "• Приготовить новый рецепт\n"
-            "• Перечитать любимую книгу\n"
             "• Написать письмо себе\n\n"
-            "<b>Маленькие удовольствия каждый день</b>\n\n"
+            "<b>Маленькие удовольствия каждый день:</b>\n"
             "• Цветы дома\n• Любимая свеча\n• Красивая посуда\n"
-            "• Музыка за завтраком\n• Прогулка в обед",
-            [
-                [{"text": "💾 Сохранить", "callback_data": "save"}],
-                [{"text": "↩ Guides", "callback_data": "guides"}],
-            ]
+            "• Музыка за завтраком",
+            [[{"text": "Сохранить", "callback_data": "save"}], [{"text": "↩ Guides", "callback_data": "guides"}]]
         )
 
-    # ── REFLECT ──
     elif data == "reflect":
         u["state"] = "reflect_mode"
         q = get_daily(EVENING_QUESTIONS)
-        edit(chat_id, msg_id,
-            f"🌙 <b>Reflect</b>\n\n<i>Поделитесь тем, что у вас на уме</i>\n\n"
-            f"Я здесь, чтобы вас поддержать и помочь разобраться в своих мыслях.\n\n"
+        send_photo(chat_id, PHOTOS["reflect"],
+            f"<b>Reflect</b>\n\n<i>Поделитесь тем, что у вас на уме</i>\n\n"
+            f"Я здесь, чтобы вас поддержать.\n\n"
             f"<b>Вопрос для рефлексии:</b>\n{q}\n\n"
-            f"Напишите в ответ ↓",
+            f"Напишите в ответ",
             [[{"text": "↩ В меню", "callback_data": "menu"}]]
         )
 
     elif data == "reflect_more":
         u["state"] = "reflect_mode"
         q = get_daily(EVENING_QUESTIONS)
-        edit(chat_id, msg_id,
-            f"🌙 <b>Reflect</b>\n\n{q}\n\nНапишите в ответ ↓",
-            [[{"text": "↩ В меню", "callback_data": "menu"}]]
-        )
+        send(chat_id, f"{q}\n\nНапишите в ответ:", [[{"text": "↩ В меню", "callback_data": "menu"}]])
 
     elif data == "save":
         answer(cb_id, "Сохранено ✦")
 
-# ── HEALTH SERVER ──────────────────────────────────────────────────────────────
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -657,7 +739,6 @@ def run_health():
     port = int(os.environ.get("PORT", 8080))
     HTTPServer(("0.0.0.0", port), HealthHandler).serve_forever()
 
-# ── MAIN ───────────────────────────────────────────────────────────────────────
 def main():
     threading.Thread(target=run_health, daemon=True).start()
     log.info("🌿 Slow Glow Bot запущен...")
