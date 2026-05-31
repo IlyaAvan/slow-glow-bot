@@ -1,34 +1,18 @@
 import asyncio
-import asyncio
 import os
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import threading
-
-class HealthHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"OK")
-    def log_message(self, format, *args):
-        pass
-
-def run_health_server():
-    port = int(os.environ.get("PORT", 8080))
-    server = HTTPServer(("0.0.0.0", port), HealthHandler)
-    server.serve_forever()
 from datetime import datetime
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
     MessageHandler, filters, ContextTypes, ConversationHandler
 )
+import logging
 
 BOT_TOKEN = "8972127511:AAEjvKfNUX5XiM72edNA1XnbkjummStkv14"
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 ASK_NAME, ASK_GOAL = range(2)
@@ -79,6 +63,19 @@ EVENING_MEDITATIONS = [
     "🌙 Вспомни один момент сегодня, когда тебе было хорошо. Удержи это ощущение. Пусть оно будет последним перед сном.",
 ]
 
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Slow Glow Bot is running")
+    def log_message(self, format, *args):
+        pass
+
+def run_health_server():
+    port = int(os.environ.get("PORT", 8080))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
+    server.serve_forever()
+
 def get_user_name(context):
     return context.user_data.get('name', 'друг')
 
@@ -109,10 +106,7 @@ def main_menu_keyboard():
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "Привет, я Slow Glow ✦\n\n"
-        "Твой интеллектуальный Telegram-бот, который помогает замедлиться, "
-        "принимать осознанные решения и жить в гармонии с собой и миром.\n\n"
-        "Как тебя зовут? 🌿"
+        "Привет, я Slow Glow ✦\n\nТвой интеллектуальный Telegram-бот, который помогает замедлиться и жить в гармонии с собой и миром.\n\nКак тебя зовут? 🌿"
     )
     return ASK_NAME
 
@@ -134,16 +128,8 @@ async def ask_goal(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     name = get_user_name(context)
-    await query.edit_message_text(
-        f"Отлично, {name} 🌿\n\n"
-        f"Каждый день буду присылать тебе что-то полезное и тёплое.\n\n"
-        f"take it slow. let it glow. ✦"
-    )
-    await context.bot.send_message(
-        chat_id=query.message.chat_id,
-        text=f"{get_time_greeting()}, {name} ✦\n\nВыбери с чего начнём:",
-        reply_markup=main_menu_keyboard()
-    )
+    await query.edit_message_text(f"Отлично, {name} 🌿\n\nКаждый день буду присылать тебе что-то полезное и тёплое.\n\ntake it slow. let it glow. ✦")
+    await context.bot.send_message(chat_id=query.message.chat_id, text=f"{get_time_greeting()}, {name} ✦\n\nВыбери с чего начнём:", reply_markup=main_menu_keyboard())
     return ConversationHandler.END
 
 async def menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -160,25 +146,17 @@ async def morning_flow(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     practice = get_daily_item(MORNING_PRACTICES)
     quote = get_daily_item(MORNING_QUOTES)
-    await query.edit_message_text(
-        f"☀️ *Morning Flow*\n\n*Практика дня*\n\n{practice}\n\n_{quote}_",
-        parse_mode='Markdown',
+    await query.edit_message_text(f"☀️ *Morning Flow*\n\n*Практика дня*\n\n{practice}\n\n_{quote}_", parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("✓ Попробую сегодня", callback_data="morning_done"),
-             InlineKeyboardButton("→ Следующее", callback_data="morning_next")],
+            [InlineKeyboardButton("✓ Попробую сегодня", callback_data="morning_done"), InlineKeyboardButton("→ Следующее", callback_data="morning_next")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def morning_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer("Отлично! 🌿")
-    name = get_user_name(context)
-    await query.edit_message_text(
-        f"Замечательно, {name} 🌿\n\n_take it slow. let it glow. ✦_",
-        parse_mode='Markdown',
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("↩ В меню", callback_data="menu")]])
-    )
+    await query.edit_message_text(f"Замечательно 🌿\n\n_take it slow. let it glow. ✦_", parse_mode='Markdown',
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("↩ В меню", callback_data="menu")]]))
 
 async def morning_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -187,15 +165,11 @@ async def morning_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['morning_idx'] = idx
     practice = MORNING_PRACTICES[idx % len(MORNING_PRACTICES)]
     quote = MORNING_QUOTES[idx % len(MORNING_QUOTES)]
-    await query.edit_message_text(
-        f"☀️ *Morning Flow*\n\n{practice}\n\n_{quote}_",
-        parse_mode='Markdown',
+    await query.edit_message_text(f"☀️ *Morning Flow*\n\n{practice}\n\n_{quote}_", parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("✓ Попробую сегодня", callback_data="morning_done"),
-             InlineKeyboardButton("→ Следующее", callback_data="morning_next")],
+            [InlineKeyboardButton("✓ Попробую сегодня", callback_data="morning_done"), InlineKeyboardButton("→ Следующее", callback_data="morning_next")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def daily_intelligence(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -203,15 +177,12 @@ async def daily_intelligence(update: Update, context: ContextTypes.DEFAULT_TYPE)
     item = get_daily_item(DAILY_INTELLIGENCE)
     culture = get_daily_item(CULTURE_NOTES)
     await query.edit_message_text(
-        f"✦ *Daily Intelligence*\n\n*{item['title']}*\n\n{item['body']}\n\n"
-        f"━━━━━━━━━━\n\n📖 *Culture Note*\n\n*{culture['title']}*\n\n{culture['body']}",
+        f"✦ *Daily Intelligence*\n\n*{item['title']}*\n\n{item['body']}\n\n━━━━━━━━━━\n\n📖 *Culture Note*\n\n*{culture['title']}*\n\n{culture['body']}",
         parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("❤️ Сохранить", callback_data="daily_save"),
-             InlineKeyboardButton("→ Ещё", callback_data="daily_next")],
+            [InlineKeyboardButton("❤️ Сохранить", callback_data="daily_save"), InlineKeyboardButton("→ Ещё", callback_data="daily_next")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def daily_save(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.callback_query.answer("Сохранено ❤️")
@@ -222,29 +193,21 @@ async def daily_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
     idx = context.user_data.get('daily_idx', 0) + 1
     context.user_data['daily_idx'] = idx
     item = DAILY_INTELLIGENCE[idx % len(DAILY_INTELLIGENCE)]
-    await query.edit_message_text(
-        f"✦ *Daily Intelligence*\n\n*{item['title']}*\n\n{item['body']}",
-        parse_mode='Markdown',
+    await query.edit_message_text(f"✦ *Daily Intelligence*\n\n*{item['title']}*\n\n{item['body']}", parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("❤️ Сохранить", callback_data="daily_save"),
-             InlineKeyboardButton("→ Ещё", callback_data="daily_next")],
+            [InlineKeyboardButton("❤️ Сохранить", callback_data="daily_save"), InlineKeyboardButton("→ Ещё", callback_data="daily_next")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def culture_note(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     item = get_daily_item(CULTURE_NOTES)
-    await query.edit_message_text(
-        f"📖 *Culture Note*\n\n*{item['title']}*\n\n{item['body']}",
-        parse_mode='Markdown',
+    await query.edit_message_text(f"📖 *Culture Note*\n\n*{item['title']}*\n\n{item['body']}", parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("❤️ Сохранить", callback_data="culture_save"),
-             InlineKeyboardButton("→ Ещё", callback_data="culture_next")],
+            [InlineKeyboardButton("❤️ Сохранить", callback_data="culture_save"), InlineKeyboardButton("→ Ещё", callback_data="culture_next")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def culture_save(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.callback_query.answer("Сохранено ❤️")
@@ -255,39 +218,28 @@ async def culture_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
     idx = context.user_data.get('culture_idx', 0) + 1
     context.user_data['culture_idx'] = idx
     item = CULTURE_NOTES[idx % len(CULTURE_NOTES)]
-    await query.edit_message_text(
-        f"📖 *Culture Note*\n\n*{item['title']}*\n\n{item['body']}",
-        parse_mode='Markdown',
+    await query.edit_message_text(f"📖 *Culture Note*\n\n*{item['title']}*\n\n{item['body']}", parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("❤️ Сохранить", callback_data="culture_save"),
-             InlineKeyboardButton("→ Ещё", callback_data="culture_next")],
+            [InlineKeyboardButton("❤️ Сохранить", callback_data="culture_save"), InlineKeyboardButton("→ Ещё", callback_data="culture_next")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def soft_suggestion(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     suggestion = get_daily_item(SOFT_SUGGESTIONS)
-    await query.edit_message_text(
-        f"🌸 *Soft Suggestion*\n\n_Небольшая идея для тебя_\n\n{suggestion}",
-        parse_mode='Markdown',
+    await query.edit_message_text(f"🌸 *Soft Suggestion*\n\n_Небольшая идея для тебя_\n\n{suggestion}", parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("✓ Сделаю", callback_data="soft_done"),
-             InlineKeyboardButton("↻ Другое", callback_data="soft_next")],
+            [InlineKeyboardButton("✓ Сделаю", callback_data="soft_done"), InlineKeyboardButton("↻ Другое", callback_data="soft_next")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def soft_done(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer("Здорово! 🌸")
     name = get_user_name(context)
-    await query.edit_message_text(
-        f"Ты замечательная, {name} 🌸\n\n_take it slow. let it glow. ✦_",
-        parse_mode='Markdown',
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("↩ В меню", callback_data="menu")]])
-    )
+    await query.edit_message_text(f"Ты замечательная, {name} 🌸\n\n_take it slow. let it glow. ✦_", parse_mode='Markdown',
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("↩ В меню", callback_data="menu")]]))
 
 async def soft_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -295,30 +247,21 @@ async def soft_next(update: Update, context: ContextTypes.DEFAULT_TYPE):
     idx = context.user_data.get('soft_idx', 0) + 1
     context.user_data['soft_idx'] = idx
     suggestion = SOFT_SUGGESTIONS[idx % len(SOFT_SUGGESTIONS)]
-    await query.edit_message_text(
-        f"🌸 *Soft Suggestion*\n\n{suggestion}",
-        parse_mode='Markdown',
+    await query.edit_message_text(f"🌸 *Soft Suggestion*\n\n{suggestion}", parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("✓ Сделаю", callback_data="soft_done"),
-             InlineKeyboardButton("↻ Другое", callback_data="soft_next")],
+            [InlineKeyboardButton("✓ Сделаю", callback_data="soft_done"), InlineKeyboardButton("↻ Другое", callback_data="soft_next")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def evening_reset(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     name = get_user_name(context)
-    await query.edit_message_text(
-        f"🌙 *Evening Reset*\n\nКак прошёл твой день, {name}?\nВремя замедлиться и отпустить.",
-        parse_mode='Markdown',
+    await query.edit_message_text(f"🌙 *Evening Reset*\n\nКак прошёл твой день, {name}?\nВремя замедлиться и отпустить.", parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("😌 Спокойно", callback_data="eve_calm"),
-             InlineKeyboardButton("😔 Устала", callback_data="eve_tired")],
-            [InlineKeyboardButton("😤 Напряжённо", callback_data="eve_tense"),
-             InlineKeyboardButton("🤍 Нейтрально", callback_data="eve_neutral")],
-        ])
-    )
+            [InlineKeyboardButton("😌 Спокойно", callback_data="eve_calm"), InlineKeyboardButton("😔 Устала", callback_data="eve_tired")],
+            [InlineKeyboardButton("😤 Напряжённо", callback_data="eve_tense"), InlineKeyboardButton("🤍 Нейтрально", callback_data="eve_neutral")],
+        ]))
 
 async def evening_mood(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -331,13 +274,12 @@ async def evening_mood(update: Update, context: ContextTypes.DEFAULT_TYPE):
     }
     text = responses.get(query.data, "Спасибо что поделилась 🌿")
     await query.edit_message_text(
-        f"🌙 *Evening Reset*\n\n{text}\n\n*Три вещи, за которые ты благодарна сегодня* 🌿\n\nНапиши их в ответ — просто списком или мыслями вслух.",
+        f"🌙 *Evening Reset*\n\n{text}\n\n*Три вещи, за которые ты благодарна сегодня* 🌿\n\nНапиши их в ответ.",
         parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🕯️ Медитация сна", callback_data="eve_meditation")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def evening_meditation(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -347,21 +289,17 @@ async def evening_meditation(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await query.edit_message_text(
         f"🕯️ *Медитация сна*\n\n{meditation}\n\n_Спокойной ночи, {name} ✦_\n\n_take it slow. let it glow._",
         parse_mode='Markdown',
-        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("↩ В меню", callback_data="menu")]])
-    )
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("↩ В меню", callback_data="menu")]]))
 
 async def settings(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     name = get_user_name(context)
-    await query.edit_message_text(
-        f"⚙️ *Настройки*\n\nИмя: {name}\n\nРассылки:\n☀️ Утро — 08:00\n✦ День — 12:00\n🌙 Вечер — 21:00",
-        parse_mode='Markdown',
+    await query.edit_message_text(f"⚙️ *Настройки*\n\nИмя: {name}", parse_mode='Markdown',
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("✏️ Изменить имя", callback_data="change_name")],
             [InlineKeyboardButton("↩ В меню", callback_data="menu")],
-        ])
-    )
+        ]))
 
 async def change_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -374,18 +312,15 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         name = update.message.text.strip()
         context.user_data['name'] = name
         context.user_data['changing_name'] = False
-        await update.message.reply_text(
-            f"Отлично, теперь буду называть тебя {name} 🌿",
-            reply_markup=main_menu_keyboard()
-        )
+        await update.message.reply_text(f"Отлично, теперь буду называть тебя {name} 🌿", reply_markup=main_menu_keyboard())
     else:
         name = get_user_name(context)
-        await update.message.reply_text(
-            f"{get_time_greeting()}, {name} ✦\n\nВыбери раздел:",
-            reply_markup=main_menu_keyboard()
-        )
+        await update.message.reply_text(f"{get_time_greeting()}, {name} ✦\n\nВыбери раздел:", reply_markup=main_menu_keyboard())
 
-async def main():
+def main():
+    threading.Thread(target=run_health_server, daemon=True).start()
+    print("🌿 Slow Glow Bot запущен...")
+
     app = Application.builder().token(BOT_TOKEN).build()
 
     conv = ConversationHandler(
@@ -417,12 +352,8 @@ async def main():
     app.add_handler(CallbackQueryHandler(settings, pattern='^settings$'))
     app.add_handler(CallbackQueryHandler(change_name, pattern='^change_name$'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-threading.Thread(target=run_health_server, daemon=True).start()
-    print("🌿 Slow Glow Bot запущен...")
-    await app.initialize()
-    await app.start()
-    await app.updater.start_polling(allowed_updates=Update.ALL_TYPES)
-    await asyncio.Event().wait()
+
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()
