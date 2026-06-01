@@ -1,1 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Slow Glow</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --butter: #EFE4B4;
+  --butter-light: #FAF7EC;
+  --butter-mid: #E8D99A;
+  --taupe-dark: #3D3228;
+  --taupe: #70655D;
+  --taupe-mid: #9A8E82;
+  --taupe-light: #C8BFB0;
+  --olive: #BAB96A;
+  --olive-light: #DBE4D0;
+  --whispy: #DBE4F2;
+  --pink: #F6E6EA;
+  --sea-pearl: #DCD2C4;
+  --cream: #FAF7F2;
+  --cream-dark: #F0EBE3;
+  --sand: #E8E0D5;
+  --white: #FFFFFF;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Inter', sans-serif;
+  --nav-h: 68px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
 
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  background: var(--cream);
+  font-family: var(--font-body);
+  color: var(--taupe-dark);
+  overflow: hidden;
+}
+
+/* ── SCREENS ── */
+.screen {
+  position: fixed;
+  inset: 0;
+  bottom: calc(var(--nav-h) + var(--safe-bottom));
+  overflow-y: auto;
+  overflow-x: hidden;
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+  transition: opacity .3s ease, transform .3s ease;
+  -webkit-overflow-scrolling: touch;
+}
+.screen.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+/* ── NAV ── */
+.nav {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  height: calc(var(--nav-h) + var(--safe-bottom));
+  background: var(--white);
+  border-top: 1px solid var(--sand);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 10px;
+  z-index: 100;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: opacity .2s;
+}
+.nav-item:active { opacity: .6; }
+.nav-icon {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-icon svg { transition: stroke .2s, fill .2s; }
+.nav-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--taupe-light);
+  transition: color .2s;
+}
+.nav-item.active .nav-label { color: var(--taupe-dark); }
+.nav-item.active .nav-icon svg { stroke: var(--taupe-dark) !important; }
+
+/* ── SHARED ── */
+.page-header {
+  padding: 20px 20px 0;
+  background: var(--cream);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--taupe-dark);
+  line-height: 1.2;
+}
+.page-sub {
+  font-size: 11px;
+  color: var(--taupe-mid);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.divider {
+  height: 1px;
+  background: var(--sand);
+  margin: 14px 0 0;
+}
+
+.card {
+  background: var(--white);
+  border-radius: 16px;
+  border: 1px solid var(--sand);
+  overflow: hidden;
+  transition: transform .15s, box-shadow .15s;
+}
+.card:active { transform: scale(.98); }
+
+.tag {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--taupe-mid);
+  padding: 4px 10px;
+  background: var(--cream);
+  border-radius: 20px;
+  border: 1px solid var(--sand);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: var(--taupe-dark);
+  color: var(--cream);
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .5px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.btn-primary:active { opacity: .8; }
+
+.btn-secondary {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  color: var(--taupe);
+  border: 1px solid var(--sand);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-secondary:active { background: var(--cream-dark); }
+
+/* ── DAILY SCREEN ── */
+#screen-daily {
+  background: var(--cream);
+}
+.daily-hero {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+.daily-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(.85);
+}
+.daily-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(61,50,40,0) 0%, rgba(61,50,40,.5) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+}
+.daily-hero-tag {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(250,247,242,.7);
+  margin-bottom: 6px;
+}
+.daily-hero-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1.3;
+}
+
+.daily-content { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+
+.daily-card {
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.daily-card-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+.daily-card-body {
+  padding: 14px 16px 16px;
+  background: var(--white);
+  border: 1px solid var(--sand);
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+}
+.daily-card-tag {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--taupe-mid);
+  margin-bottom: 6px;
+}
+.daily-card-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--taupe-dark);
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+.daily-card-text {
+  font-size: 12px;
+  color: var(--taupe);
+  line-height: 1.6;
+}
+.daily-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--sand);
+}
+.daily-card-action {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--taupe-dark);
+  letter-spacing: .3px;
+}
+.daily-card-arrow {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cream);
+  border: 1px solid var(--sand);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.soft-action-card {
+  background: var(--butter-light);
+  border: 1px solid var(--butter-mid);
+  border-radius: 16px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+.soft-action-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--butter);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.soft-action-text { flex: 1; }
+.soft-action-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--taupe-mid);
+  margin-bottom: 4px;
+}
+.soft-action-body {
+  font-size: 13px;
+  color: var(--taupe-dark);
+  line-height: 1.45;
+}
+
+/* ── COMPASS SCREEN ── */
+#screen-compass { background: var(--cream); }
+.compass-content { padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 20px; }
+.compass-profile {
+  background: var(--white);
+  border-radius: 20px;
+  border: 1px solid var(--sand);
+  padding: 20px;
+}
+.compass-profile-top {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+}
+.compass-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: var(--olive-light);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--taupe-dark);
+}
+.compass-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--taupe-dark);
+}
+.compass-tagline {
+  font-size: 11px;
+  color: var(--taupe-mid);
+  margin-top: 2px;
+}
+.compass-section-title {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--taupe-mid);
+  margin-bottom: 10px;
+}
+.qualities-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.quality-chip {
+  padding: 6px 12px;
+  background: var(--butter-light);
+  border: 1px solid var(--butter-mid);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--taupe-dark);
+}
+.progress-section {
+  background: var(--white);
+  border-radius: 20px;
+  border: 1px solid var(--sand);
+  padding: 20px;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.progress-text {
+  font-size: 13px;
+  color: var(--taupe-dark);
+}
+.progress-days {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--taupe-dark);
+}
+.progress-bar {
+  height: 4px;
+  background: var(--sand);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--olive);
+  border-radius: 2px;
+  transition: width .6s ease;
+}
+.interests-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+.interest-card {
+  background: var(--cream);
+  border: 1px solid var(--sand);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.interest-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.interest-label {
+  font-size: 12px;
+  color: var(--taupe-dark);
+}
+
+/* ── EXPLORE SCREEN ── */
+#screen-explore { background: var(--cream); }
+.explore-content { padding: 16px 20px 24px; }
+.explore-input-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+.explore-input {
+  width: 100%;
+  padding: 14px 48px 14px 16px;
+  background: var(--white);
+  border: 1px solid var(--sand);
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--taupe-dark);
+  outline: none;
+  transition: border-color .2s;
+}
+.explore-input:focus { border-color: var(--taupe-light); }
+.explore-input::placeholder { color: var(--taupe-light); }
+.explore-send {
+  position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--taupe-dark);
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.explore-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.explore-chip {
+  padding: 8px 14px;
+  background: var(--white);
+  border: 1px solid var(--sand);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--taupe);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  font-family: var(--font-body);
+}
+.explore-chip:active { background: var(--butter-light); border-color: var(--butter-mid); }
+.explore-section-title {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--taupe-mid);
+  margin-bottom: 12px;
+}
+.explore-results { display: flex; flex-direction: column; gap: 12px; }
+.explore-result-card {
+  background: var(--white);
+  border: 1px solid var(--sand);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: transform .15s;
+}
+.explore-result-card:active { transform: scale(.98); }
+.explore-result-tag {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--taupe-mid);
+  margin-bottom: 6px;
+}
+.explore-result-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--taupe-dark);
+  margin-bottom: 5px;
+}
+.explore-result-text {
+  font-size: 12px;
+  color: var(--taupe);
+  line-height: 1.55;
+}
+
+/* ── GUIDES SCREEN ── */
+#screen-guides { background: var(--cream); }
+.guides-content { padding: 16px 20px 24px; }
+.guides-categories {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.guide-cat {
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+.guide-cat-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .3s;
+}
+.guide-cat:active .guide-cat-img { transform: scale(1.05); }
+.guide-cat-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(61,50,40,.4) 0%, rgba(61,50,40,.1) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px;
+}
+.guide-cat-label {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(250,247,242,.7);
+  margin-bottom: 3px;
+}
+.guide-cat-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--cream);
+}
+.city-search {
+  background: var(--white);
+  border: 1px solid var(--sand);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.city-search-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--whispy);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.city-search-text { flex: 1; }
+.city-search-title { font-size: 14px; font-weight: 500; color: var(--taupe-dark); }
+.city-search-sub { font-size: 11px; color: var(--taupe-mid); margin-top: 2px; }
+
+/* ── REFLECT SCREEN ── */
+#screen-reflect { background: var(--cream); }
+.reflect-content { padding: 16px 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+.reflect-hero {
+  background: var(--taupe-dark);
+  border-radius: 20px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.reflect-hero::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(250,247,242,.04);
+}
+.reflect-hero-tag {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(250,247,242,.5);
+  margin-bottom: 10px;
+}
+.reflect-hero-q {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+.reflect-input {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px 14px;
+  background: rgba(250,247,242,.08);
+  border: 1px solid rgba(250,247,242,.15);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--cream);
+  resize: none;
+  outline: none;
+}
+.reflect-input::placeholder { color: rgba(250,247,242,.3); }
+.reflect-submit {
+  margin-top: 10px;
+  padding: 12px;
+  background: rgba(250,247,242,.12);
+  border: 1px solid rgba(250,247,242,.2);
+  border-radius: 12px;
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  transition: background .15s;
+}
+.reflect-submit:active { background: rgba(250,247,242,.2); }
+.mood-section { background: var(--white); border: 1px solid var(--sand); border-radius: 20px; padding: 18px; }
+.mood-title { font-size: 13px; font-weight: 500; color: var(--taupe-dark); margin-bottom: 12px; }
+.mood-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mood-btn {
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--sand);
+  background: var(--cream);
+  text-align: center;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  font-family: var(--font-body);
+}
+.mood-btn:active { background: var(--butter-light); border-color: var(--butter-mid); }
+.mood-btn.selected { background: var(--butter-light); border-color: var(--butter-mid); }
+.mood-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
+.mood-label { font-size: 11px; color: var(--taupe); }
+.evening-card {
+  background: linear-gradient(135deg, #F5EFE8 0%, #EFE4D8 100%);
+  border: 1px solid var(--sea-pearl);
+  border-radius: 20px;
+  padding: 20px;
+}
+.evening-title { font-family: var(--font-display); font-size: 18px; color: var(--taupe-dark); margin-bottom: 6px; }
+.evening-text { font-size: 12px; color: var(--taupe); line-height: 1.6; margin-bottom: 14px; }
+.evening-textarea {
+  width: 100%;
+  min-height: 70px;
+  padding: 10px 12px;
+  background: var(--white);
+  border: 1px solid var(--sand);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--taupe-dark);
+  resize: none;
+  outline: none;
+}
+.evening-textarea::placeholder { color: var(--taupe-light); }
+
+/* ── DETAIL OVERLAY ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.overlay-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(61,50,40,.4);
+  backdrop-filter: blur(4px);
+}
+.overlay-sheet {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: var(--cream);
+  border-radius: 24px 24px 0 0;
+  max-height: 85vh;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform .35s cubic-bezier(.32,.72,0,1);
+}
+.overlay.open .overlay-sheet { transform: translateY(0); }
+.overlay-handle {
+  width: 36px; height: 4px;
+  background: var(--sand);
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+.overlay-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+.overlay-body { padding: 20px 20px 32px; }
+.overlay-tag { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--taupe-mid); margin-bottom: 10px; }
+.overlay-title { font-family: var(--font-display); font-size: 24px; font-weight: 400; color: var(--taupe-dark); line-height: 1.3; margin-bottom: 12px; }
+.overlay-text { font-size: 13px; color: var(--taupe); line-height: 1.7; white-space: pre-line; }
+.overlay-actions { display: flex; gap: 10px; margin-top: 20px; }
+.overlay-save {
+  flex: 1; padding: 13px;
+  background: var(--cream);
+  border: 1px solid var(--sand);
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 13px; color: var(--taupe);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.overlay-close {
+  flex: 1; padding: 13px;
+  background: var(--taupe-dark);
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 13px; color: var(--cream);
+  cursor: pointer;
+}
+
+/* ── TAGLINE ── */
+.tagline {
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--taupe-light);
+  letter-spacing: 1px;
+  padding: 20px 0 4px;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
+  left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--taupe-dark);
+  color: var(--cream);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity .3s, transform .3s;
+  pointer-events: none;
+  z-index: 300;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<!-- DAILY -->
+<div class="screen active" id="screen-daily">
+  <div class="daily-hero">
+    <img class="daily-hero-img" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80" alt="">
+    <div class="daily-hero-overlay">
+      <div class="daily-hero-tag">Morning Compass · Сегодня</div>
+      <div class="daily-hero-title">Сегодня не обязательно<br>делать больше</div>
+    </div>
+  </div>
+  <div class="daily-content">
+
+    <div class="daily-card" onclick="openOverlay('morning')">
+      <img class="daily-card-img" src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80" alt="">
+      <div class="daily-card-body">
+        <div class="daily-card-tag">Daily Intelligence</div>
+        <div class="daily-card-title">Наш мозг любит предсказуемость</div>
+        <div class="daily-card-text">Когда у нас есть простые ритуалы, мозгу легче снижать уровень стресса и принимать решения.</div>
+        <div class="daily-card-footer">
+          <span class="daily-card-action">Читать</span>
+          <div class="daily-card-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="#3D3228" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="daily-card" onclick="openOverlay('culture')">
+      <img class="daily-card-img" src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80" alt="">
+      <div class="daily-card-body">
+        <div class="daily-card-tag">Culture Note</div>
+        <div class="daily-card-title">Красота в деталях</div>
+        <div class="daily-card-text">Искусство учит нас замечать то, что делает мир глубже и богаче.</div>
+        <div class="daily-card-footer">
+          <span class="daily-card-action">Читать</span>
+          <div class="daily-card-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="#3D3228" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="soft-action-card" onclick="openOverlay('soft')">
+      <div class="soft-action-icon">🌸</div>
+      <div class="soft-action-text">
+        <div class="soft-action-label">Soft Action</div>
+        <div class="soft-action-body">Выпейте стакан воды у окна и подышите свежим воздухом.</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="#9A8E82" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+
+    <div class="daily-card" onclick="openOverlay('recipe')">
+      <img class="daily-card-img" src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80" alt="">
+      <div class="daily-card-body">
+        <div class="daily-card-tag">Recipe of the Day</div>
+        <div class="daily-card-title">Green Glow Bowl</div>
+        <div class="daily-card-text">Лёгкий, питательный и очень красивый завтрак за 15 минут.</div>
+        <div class="daily-card-footer">
+          <span class="daily-card-action">Смотреть рецепт</span>
+          <div class="daily-card-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="#3D3228" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tagline">take it slow. let it glow. ✦</div>
+  </div>
+</div>
+
+<!-- COMPASS -->
+<div class="screen" id="screen-compass">
+  <div class="page-header">
+    <div class="page-sub">Ваш профиль</div>
+    <div class="page-title">My Compass</div>
+    <div class="divider"></div>
+  </div>
+  <div class="compass-content">
+    <div class="compass-profile">
+      <div class="compass-profile-top">
+        <div class="compass-avatar">А</div>
+        <div>
+          <div class="compass-name">Алина</div>
+          <div class="compass-tagline">Intelligent Calm Living</div>
+        </div>
+      </div>
+      <div class="compass-section-title">Я становлюсь человеком, который</div>
+      <div class="qualities-grid">
+        <span class="quality-chip">спокойная</span>
+        <span class="quality-chip">эстетичная</span>
+        <span class="quality-chip">любознательная</span>
+        <span class="quality-chip">заботящаяся о себе</span>
+        <span class="quality-chip">творческая</span>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-label">
+        <span class="progress-text">Дней осознанного выбора</span>
+        <span class="progress-days">18 / 30</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 60%"></div>
+      </div>
+      <div style="font-size:11px;color:var(--taupe-mid);margin-top:8px">Вы осознанно выбираете себя каждый день ✦</div>
+    </div>
+
+    <div>
+      <div class="compass-section-title" style="margin-bottom:10px">Мои интересы</div>
+      <div class="interests-grid">
+        <div class="interest-card">
+          <div class="interest-icon" style="background:var(--butter-light)">📚</div>
+          <span class="interest-label">Книги</span>
+        </div>
+        <div class="interest-card">
+          <div class="interest-icon" style="background:var(--pink)">💄</div>
+          <span class="interest-label">Красота</span>
+        </div>
+        <div class="interest-card">
+          <div class="interest-icon" style="background:var(--whispy)">✈️</div>
+          <span class="interest-label">Путешествия</span>
+        </div>
+        <div class="interest-card">
+          <div class="interest-icon" style="background:var(--olive-light)">🌿</div>
+          <span class="interest-label">Wellness</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tagline">take it slow. let it glow. ✦</div>
+  </div>
+</div>
+
+<!-- EXPLORE -->
+<div class="screen" id="screen-explore">
+  <div class="page-header">
+    <div class="page-sub">AI-помощник</div>
+    <div class="page-title">Explore</div>
+    <div class="divider"></div>
+  </div>
+  <div class="explore-content">
+    <div class="explore-input-wrap">
+      <input class="explore-input" placeholder="Чем я могу помочь?" id="explore-input">
+      <button class="explore-send" onclick="sendExplore()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="#FAF7F2" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="explore-chips">
+      <button class="explore-chip" onclick="setExplore('Париж на 4 дня')">Париж на 4 дня</button>
+      <button class="explore-chip" onclick="setExplore('Что почитать если устала')">Что почитать если устала</button>
+      <button class="explore-chip" onclick="setExplore('Завтрак за 10 минут')">Завтрак за 10 минут</button>
+      <button class="explore-chip" onclick="setExplore('Уход за кожей зимой')">Уход за кожей зимой</button>
+      <button class="explore-chip" onclick="setExplore('Идеи для воскресенья')">Идеи для воскресенья</button>
+    </div>
+    <div class="explore-section-title">Популярные запросы</div>
+    <div class="explore-results">
+      <div class="explore-result-card" onclick="openOverlay('paris')">
+        <div class="explore-result-tag">Travel Guide</div>
+        <div class="explore-result-title">Париж на 4 дня</div>
+        <div class="explore-result-text">Эстетичный, спокойный, вдохновляющий маршрут.</div>
+      </div>
+      <div class="explore-result-card" onclick="openOverlay('books_slow')">
+        <div class="explore-result-tag">Books</div>
+        <div class="explore-result-title">Книги о slow living</div>
+        <div class="explore-result-text">Подборка для тех, кто хочет замедлиться.</div>
+      </div>
+      <div class="explore-result-card" onclick="openOverlay('beauty_food')">
+        <div class="explore-result-tag">Beauty</div>
+        <div class="explore-result-title">Глоу ап с помощью еды</div>
+        <div class="explore-result-text">То что ты ешь — это твоя кожа.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GUIDES -->
+<div class="screen" id="screen-guides">
+  <div class="page-header">
+    <div class="page-sub">Мини-гайды</div>
+    <div class="page-title">Guides</div>
+    <div class="divider"></div>
+  </div>
+  <div class="guides-content">
+    <div class="guides-categories">
+      <div class="guide-cat" onclick="openOverlay('g_books')">
+        <img class="guide-cat-img" src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&q=80" alt="">
+        <div class="guide-cat-overlay">
+          <div class="guide-cat-label">8 гайдов</div>
+          <div class="guide-cat-title">Книги</div>
+        </div>
+      </div>
+      <div class="guide-cat" onclick="openOverlay('g_beauty')">
+        <img class="guide-cat-img" src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80" alt="">
+        <div class="guide-cat-overlay">
+          <div class="guide-cat-label">8 гайдов</div>
+          <div class="guide-cat-title">Beauty</div>
+        </div>
+      </div>
+      <div class="guide-cat" onclick="openOverlay('g_wellness')">
+        <img class="guide-cat-img" src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&q=80" alt="">
+        <div class="guide-cat-overlay">
+          <div class="guide-cat-label">8 гайдов</div>
+          <div class="guide-cat-title">Wellness</div>
+        </div>
+      </div>
+      <div class="guide-cat" onclick="openOverlay('g_travel')">
+        <img class="guide-cat-img" src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&q=80" alt="">
+        <div class="guide-cat-overlay">
+          <div class="guide-cat-label">8 гайдов</div>
+          <div class="guide-cat-title">Путешествия</div>
+        </div>
+      </div>
+      <div class="guide-cat" onclick="openOverlay('g_food')">
+        <img class="guide-cat-img" src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3b21?w=400&q=80" alt="">
+        <div class="guide-cat-overlay">
+          <div class="guide-cat-label">8 гайдов</div>
+          <div class="guide-cat-title">Еда</div>
+        </div>
+      </div>
+      <div class="guide-cat" onclick="openOverlay('g_psychology')">
+        <img class="guide-cat-img" src="https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=400&q=80" alt="">
+        <div class="guide-cat-overlay">
+          <div class="guide-cat-label">8 гайдов</div>
+          <div class="guide-cat-title">Психология</div>
+        </div>
+      </div>
+    </div>
+    <div class="city-search" onclick="openOverlay('city')">
+      <div class="city-search-icon">🗺️</div>
+      <div class="city-search-text">
+        <div class="city-search-title">Найти город</div>
+        <div class="city-search-sub">Париж, Токио, Лиссабон и другие</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="#9A8E82" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div class="guide-cat" style="aspect-ratio:auto;height:100px;margin-top:0" onclick="openOverlay('g_lifestyle')">
+      <img class="guide-cat-img" src="https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600&q=80" alt="">
+      <div class="guide-cat-overlay">
+        <div class="guide-cat-label">8 гайдов</div>
+        <div class="guide-cat-title">Lifestyle</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REFLECT -->
+<div class="screen" id="screen-reflect">
+  <div class="page-header">
+    <div class="page-sub">Рефлексия</div>
+    <div class="page-title">Reflect</div>
+    <div class="divider"></div>
+  </div>
+  <div class="reflect-content">
+    <div class="reflect-hero">
+      <div class="reflect-hero-tag">Вопрос дня</div>
+      <div class="reflect-hero-q">Где сегодня я была близка к тому, кем хочу стать?</div>
+      <textarea class="reflect-input" placeholder="Напишите здесь..."></textarea>
+      <button class="reflect-submit" onclick="showToast('Сохранено ✦')">Поделиться</button>
+    </div>
+    <div class="mood-section">
+      <div class="mood-title">Как прошёл твой день?</div>
+      <div class="mood-grid">
+        <button class="mood-btn" onclick="selectMood(this)"><span class="mood-emoji">😌</span><span class="mood-label">Спокойно</span></button>
+        <button class="mood-btn" onclick="selectMood(this)"><span class="mood-emoji">😔</span><span class="mood-label">Устала</span></button>
+        <button class="mood-btn" onclick="selectMood(this)"><span class="mood-emoji">😤</span><span class="mood-label">Напряжённо</span></button>
+        <button class="mood-btn" onclick="selectMood(this)"><span class="mood-emoji">🤍</span><span class="mood-label">Нейтрально</span></button>
+      </div>
+    </div>
+    <div class="evening-card">
+      <div class="evening-title">Три благодарности</div>
+      <div class="evening-text">Запиши три вещи, за которые ты благодарна сегодня.</div>
+      <textarea class="evening-textarea" placeholder="Сегодня я благодарна за..."></textarea>
+    </div>
+    <div class="tagline">take it slow. let it glow. ✦</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-item active" onclick="switchTab('daily',this)">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="4" stroke="#C8BFB0" stroke-width="1.5"/><path d="M11 2v2M11 18v2M2 11h2M18 11h2M4.93 4.93l1.41 1.41M15.66 15.66l1.41 1.41M4.93 17.07l1.41-1.41M15.66 6.34l1.41-1.41" stroke="#C8BFB0" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <span class="nav-label">Daily</span>
+  </div>
+  <div class="nav-item" onclick="switchTab('compass',this)">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8" stroke="#C8BFB0" stroke-width="1.5"/><path d="M11 7v4l2.5 2.5" stroke="#C8BFB0" stroke-width="1.5" stroke-linecap="round"/><circle cx="11" cy="11" r="1" fill="#C8BFB0"/></svg>
+    </div>
+    <span class="nav-label">Compass</span>
+  </div>
+  <div class="nav-item" onclick="switchTab('explore',this)">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="10" cy="10" r="7" stroke="#C8BFB0" stroke-width="1.5"/><path d="M17 17l3 3" stroke="#C8BFB0" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <span class="nav-label">Explore</span>
+  </div>
+  <div class="nav-item" onclick="switchTab('guides',this)">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="4" width="16" height="14" rx="2" stroke="#C8BFB0" stroke-width="1.5"/><path d="M7 8h8M7 11h8M7 14h5" stroke="#C8BFB0" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <span class="nav-label">Guides</span>
+  </div>
+  <div class="nav-item" onclick="switchTab('reflect',this)">
+    <div class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 3C6.58 3 3 6.13 3 10c0 2.38 1.19 4.47 3 5.74V17l2.5-1.5c.8.2 1.63.5 2.5.5 4.42 0 8-3.13 8-7s-3.58-7-8-7z" stroke="#C8BFB0" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    </div>
+    <span class="nav-label">Reflect</span>
+  </div>
+</nav>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeOverlayOnBg(event)">
+  <div class="overlay-bg"></div>
+  <div class="overlay-sheet">
+    <div class="overlay-handle"></div>
+    <img class="overlay-img" id="overlay-img" src="" alt="">
+    <div class="overlay-body">
+      <div class="overlay-tag" id="overlay-tag"></div>
+      <div class="overlay-title" id="overlay-title"></div>
+      <div class="overlay-text" id="overlay-text"></div>
+      <div class="overlay-actions">
+        <button class="overlay-save" onclick="showToast('Сохранено ✦')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="#70655D" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Сохранить
+        </button>
+        <button class="overlay-close" onclick="closeOverlay()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const CONTENT = {
+  morning: {tag:"Morning Compass", title:"Сегодня не обязательно делать больше", text:"Можно делать важнее.\n\nГде сегодня можно выбрать спокойствие вместо спешки?\n\nЭто не про лень — это про мудрость. Иногда самое важное действие — это пауза.", img:"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800"},
+  culture: {tag:"Culture Note", title:"Красота в деталях", text:"Искусство учит нас замечать то, что делает мир глубже и богаче.\n\nСегодня: обратите внимание на одну маленькую красивую вещь рядом с вами. Она уже здесь.", img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800"},
+  soft: {tag:"Soft Action", title:"Маленькое действие", text:"Выпейте стакан воды у окна и подышите свежим воздухом.\n\nМаленькое действие — это уже забота о себе. Не нужен подвиг.\n\nПросто один стакан воды. Один вдох.", img:"https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800"},
+  recipe: {tag:"Recipe of the Day", title:"Green Glow Bowl", text:"Лёгкий, питательный и очень красивый завтрак.\n\nИнгредиенты:\n• Авокадо — 1 шт\n• Шпинат — горсть\n• Яйцо — 1 шт\n• Лимонный сок, кунжут\n\nПриготовление:\n1. Яйцо всмятку — 6 минут\n2. Нарежьте авокадо\n3. Выложите, сбрызните лимоном\n\n✦ Омега-3, железо, витамин D · 15 мин", img:"https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800"},
+  paris: {tag:"Travel Guide", title:"Париж на 4 дня", text:"Город света и медленных прогулок.\n\n• День 1: Монмартр — кафе, художники, закат\n• День 2: Музей Орсе + набережные Сены\n• День 3: Маре — галереи, винтаж, фалафель\n• День 4: Версаль или тихие парки\n\nЛучшее время: апрель–май, сентябрь\nЖить: 11-й или 3-й округ\n\nПариж не торопит ✦", img:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800"},
+  books_slow: {tag:"Books", title:"Книги о slow living", text:"Искусство замедлиться:\n\n• «В защиту праздности» — Том Ходжкинсон\n• «Essentialism» — Грег МакКеон\n• «Дао Пуха» — Бенджамин Хофф\n• «Радикальное принятие» — Тара Брах\n• «Сила настоящего» — Экхарт Толле\n• «Искусство неторопливости» — Карл Оноре\n• «Жизнь на полную катушку» — Брене Браун\n• «Год осознанной жизни» — Шэрон Зальцберг\n\nМеньше суеты, больше смысла ✦", img:"https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800"},
+  beauty_food: {tag:"Beauty", title:"Глоу ап с помощью еды", text:"То что ты ешь — это твоя кожа.\n\nДобавить в рацион:\n• Авокадо — жирные кислоты, упругость\n• Черника — антиоксиданты, защита\n• Лосось — омега-3, сияние\n• Зелёный чай — детокс, anti-age\n• Куркума — противовоспалительное\n• Орехи — витамин Е\n\nУбрать:\nСахар, алкоголь, переработанное\n\nКрасота начинается изнутри ✦", img:"https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800"},
+  g_books: {tag:"Guides · Книги", title:"8 гайдов о книгах", text:"Выберите тему которая вас интересует:\n\n• Художественная литература\n• Книги об искусстве и эстетике\n• Книги о slow living\n• Книги о психологии и себе\n• Книги о путешествиях\n• Книги о красоте и стиле\n• Книги о еде и кулинарии\n• Книги о женщинах и силе\n\nВсе гайды доступны в боте ✦", img:"https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800"},
+  g_beauty: {tag:"Guides · Beauty", title:"8 гайдов о красоте", text:"Выберите тему:\n\n• Глоу ап с помощью еды\n• Корейский уход K-beauty\n• Beauty-тренды\n• Уход за кожей зимой\n• Минималистичный макияж\n• Уход за волосами\n• Уход за телом\n• Натуральная красота\n\nВсе гайды доступны в боте ✦", img:"https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800"},
+  g_wellness: {tag:"Guides · Wellness", title:"8 гайдов о wellness", text:"Выберите тему:\n\n• Утренний ритуал за 10 минут\n• Вечерний ритуал\n• Дыхательные практики\n• Цифровой детокс\n• Движение как забота\n• Сон как суперсила\n• Медитация для начинающих\n• Питание для энергии\n\nВсе гайды доступны в боте ✦", img:"https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800"},
+  g_travel: {tag:"Guides · Путешествия", title:"8 маршрутов", text:"Выберите направление:\n\n• Париж — город света\n• Токио — контраст тишины и шума\n• Лиссабон — свет и меланхолия\n• Копенгаген — дизайн и hygge\n• Флоренция — ренессанс\n• Барселона — солнце и Гауди\n• Киото — тишина Японии\n• Slow travel — осознанные поездки\n\nВсе гайды доступны в боте ✦", img:"https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800"},
+  g_food: {tag:"Guides · Еда", title:"8 гайдов о еде", text:"Выберите тему:\n\n• Завтраки за 10 минут\n• Противовоспалительная диета\n• Осознанное питание\n• Детокс-напитки\n• Суперфуды\n• Интуитивное питание\n• Красивые рецепты\n• Питание для кожи\n\nВсе гайды доступны в боте ✦", img:"https://images.unsplash.com/photo-1476224203421-9ac39bcb3b21?w=800"},
+  g_psychology: {tag:"Guides · Психология", title:"8 гайдов о психологии", text:"Выберите тему:\n\n• Как работает тревога\n• Теория привязанности\n• Границы без вины\n• Внутренний критик\n• Эмоциональный интеллект\n• Самосострадание\n• Ценности как компас\n• Перфекционизм\n\nВсе гайды доступны в боте ✦", img:"https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?w=800"},
+  g_lifestyle: {tag:"Guides · Lifestyle", title:"8 гайдов о стиле жизни", text:"Выберите тему:\n\n• Красивый дом\n• Капсульный гардероб\n• Осознанные покупки\n• Управление временем\n• Финансовое благополучие\n• Поддерживающее окружение\n• Ритуалы для себя\n• Идеи для воскресенья\n\nВсе гайды доступны в боте ✦", img:"https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800"},
+  city: {tag:"Travel · Города", title:"Найти город", text:"Напишите название города в боте и получите персональный гайд.\n\nДоступные города:\n• Париж\n• Токио\n• Лиссабон\n• Копенгаген\n• Флоренция\n• Барселона\n• Киото\n• Милан\n\nСкоро будет больше городов ✦", img:"https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800"},
+};
+
+function switchTab(id, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+function openOverlay(key) {
+  const c = CONTENT[key];
+  if (!c) return;
+  document.getElementById('overlay-img').src = c.img;
+  document.getElementById('overlay-tag').textContent = c.tag;
+  document.getElementById('overlay-title').textContent = c.title;
+  document.getElementById('overlay-text').textContent = c.text;
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOverlay() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeOverlayOnBg(e) {
+  if (e.target === document.getElementById('overlay') || e.target.classList.contains('overlay-bg')) {
+    closeOverlay();
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function selectMood(btn) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  showToast('Настроение сохранено ✦');
+}
+
+function setExplore(text) {
+  document.getElementById('explore-input').value = text;
+}
+
+function sendExplore() {
+  const val = document.getElementById('explore-input').value.trim();
+  if (val) showToast('Запрос отправлен ✦');
+}
+
+// Telegram Web App init
+if (window.Telegram && window.Telegram.WebApp) {
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+  document.documentElement.style.setProperty('--safe-bottom', tg.viewportStableHeight ? '0px' : 'env(safe-area-inset-bottom, 0px)');
+}
+</script>
+</body>
+</html>
