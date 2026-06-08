@@ -4,7 +4,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.request import urlopen, Request
 
 BOT_TOKEN = "8972127511:AAEjvKfNUX5XiM72edNA1XnbkjummStkv14"
-GROQ_API_KEY = "вставь_сюда_groq_ключ"
+GROQ_API_KEY = "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"
 API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 log = logging.getLogger(__name__)
