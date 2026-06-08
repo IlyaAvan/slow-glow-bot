@@ -10,19 +10,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 log = logging.getLogger(__name__)
 
 PHOTOS = {
-    "welcome":   "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800",
-    "morning":   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
-    "wellness":  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800",
-    "beauty":    "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800",
-    "culture":   "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
-    "travel":    "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800",
-    "evening":   "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?w=800",
-    "pinterest": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800",
-    "profile":   "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800",
-    "paris":     "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800",
-    "tokyo":     "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800",
-    "lisbon":    "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?w=800",
-    "default":   "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800",
+    "welcome":   "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img1.jpg",
+    "morning":   "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img7.jpg",
+    "wellness":  "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img17.jpg",
+    "beauty":    "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img12.jpg",
+    "culture":   "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img5.jpg",
+    "travel":    "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img16.jpg",
+    "evening":   "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img15.jpg",
+    "pinterest": "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img2.jpg",
+    "profile":   "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img9.jpg",
+    "paris":     "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img9.jpg",
+    "tokyo":     "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img14.jpg",
+    "lisbon":    "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img6.jpg",
+    "default":   "https://raw.githubusercontent.com/IlyaAvan/slow-glow-bot/main/img8.jpg",
 }
 
 SYSTEM_PROMPT = (
