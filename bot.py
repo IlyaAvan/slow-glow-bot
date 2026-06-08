@@ -310,9 +310,11 @@ def handle_message(msg):
     if u["state"] == "onboarding":
         step = u["ob_step"]
         if step < len(OB_QUESTIONS) and OB_QUESTIONS[step]["type"] == "text":
-            u["name"] = text.strip()
+            name = text.strip()
+            u["name"] = name
             u["ob_step"] += 1
-            time.sleep(0.3)
+            send(chat_id, "Приятно познакомиться, <b>" + u["name"] + "</b> ✦\n\nЗадам ещё несколько вопросов — чтобы Slow Glow был по-настоящему твоим.")
+            time.sleep(0.5)
             send_ob_step(chat_id, u)
         return
 
@@ -580,12 +582,20 @@ class HealthHandler(BaseHTTPRequestHandler):
     def log_message(self, *args): pass
 
 def run_health():
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 10000))
     HTTPServer(("0.0.0.0", port), HealthHandler).serve_forever()
 
 def main():
     threading.Thread(target=run_health, daemon=True).start()
     log.info("Slow Glow Bot 2.0 запущен")
+    # Clear any existing webhook
+    try:
+        req = Request(f"{API}/deleteWebhook", data=b"{}", headers={"Content-Type": "application/json"}, method="POST")
+        with urlopen(req, timeout=10) as r:
+            log.info("Webhook cleared")
+    except:
+        pass
+    time.sleep(2)
     offset = 0
     while True:
         try:
